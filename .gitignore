@@ -29,3 +29,7 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+
+alert_email_ids.yml
+shodan.yml
+sidekiq.yml

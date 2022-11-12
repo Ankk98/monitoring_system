@@ -1,0 +1,4 @@
+development:
+  - "email@example.com"
+test:
+production:

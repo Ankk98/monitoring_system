@@ -4,7 +4,7 @@
     <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
   </head>
   <body>
-		<p><%= @new_entry_count %> new entries discovered on <%= @platform %> for query <%= @query_result.query.info %> at <%= @query_result.time %>.</p>
+		<p>New entries discovered on platform <%= @query_result.platform_id %> for query <%= @query_result.params %> at <%= @query_result.monitoring_actions.succeeded.last&.updated_at %>.</p>
   </body>
 </html>
 

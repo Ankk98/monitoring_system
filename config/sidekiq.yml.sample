@@ -1,5 +1,3 @@
 :queues:
-  - default
-  - mailers
   - monitoring_system_default
   - monitoring_system_mailers
