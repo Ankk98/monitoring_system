@@ -18,8 +18,6 @@ class MonitoringActionJob
 	rescue => e
 		logger.info "MONITORING_ACTION_JOB_FAILED: #{action_id} : #{e.class} : #{e.message} : #{e.backtrace}"
 		action.mark_state(MonitoringAction::State::FAILED)
-
-		# self healing
-		# fault tolerant
+		Platform.incr_platform_failed_count(platform)
 	end
 end
