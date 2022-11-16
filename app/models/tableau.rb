@@ -1,6 +1,6 @@
 module Tableau
 	QUERY_URL = "https://public.tableau.com/api/search/query"
-	
+
 	# Results are not in order by Author created_at
 	# Author profileName seems to be unique
 	# Result types are: WORKBOOKS(vizzes), AUTHORS(authors)
@@ -9,7 +9,7 @@ module Tableau
 
 	MAX_ITERATIONS = 100
 
-	module Types
+	module Type
 		AUTHORS = "authors"
 		VIZZES = "vizzes"
 	end
@@ -20,16 +20,16 @@ module Tableau
 
 		if 200 != resp.code
 			logger.error "REQUEST_FAILED: #{resp.code} - #{resp["error"]}"
-			raise e
+			raise "REQUEST_FAILED: #{resp.code} - #{resp["error"]}"
 		end
 		resp
 	end
 
 	def self.extract_ids(resp, type)
 		results = resp["results"]
-		if Types::VIZZES == type
+		if Type::VIZZES == type
 			results.collect { |result| result["workbook"]["luid"] }
-		elsif Types::AUTHORS == type
+		elsif Type::AUTHORS == type
 			results.collect { |result| result["author"]["profileName"] }
 		else
 			raise "Incorrect Type"
@@ -56,12 +56,15 @@ module Tableau
 			ids += extract_ids(resp, type)
 			iterations += 1
 		end
-		logger.error "Reached Max Allowed Iterations" if iterations >= MAX_ITERATIONS
-		ids
-		#results = {"vizzes" => @vizzes_ids, "authors" => @author_ids}
+		logger.error "REACHED_MAX_ITERATIONS" if iterations >= MAX_ITERATIONS
+
+		result = {Type::VIZZES => [], Type::AUTHORS => []}
+		result[Type::VIZZES] = ids if type == Type::VIZZES
+		result[Type::AUTHORS] = ids if type == Type::AUTHORS
+		result
 	end
 
 	def self.found_new_results?(old, new)
-		(new[VIZZES] - old[VIZZES]).any? || (new[AUTHORS] - old[AUTHORS]).any?
+		(new[Type::VIZZES] - old[Type::VIZZES]).any? || (new[Type::AUTHORS] - old[Type::AUTHORS]).any?
 	end
 end
