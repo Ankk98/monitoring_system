@@ -1,5 +1,5 @@
 class MasterMonitoringJob
-  include Sidekiq::Job
+	include Sidekiq::Job
 
 	def get_down_platforms
 		time = Time.current
@@ -14,7 +14,7 @@ class MasterMonitoringJob
 		}
 	end
 
-  def perform
+	def perform
 		logger.info "MASTER_MONITORING_JOB_STARTED"
 
 		down_platforms = get_down_platforms
@@ -47,5 +47,5 @@ class MasterMonitoringJob
 	ensure
 		MasterMonitoringJob.perform_in(1.minutes)
 		# TODO: Use scheduler
-  end
+	end
 end
