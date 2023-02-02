@@ -1,12 +1,20 @@
 class MasterMonitoringJob
-  include Sidekiq::Job
+	include Sidekiq::Job
 
 	def get_down_platforms
-		#TODO: use redis to get data of pltform failures, avoid enqueing their jobs for few minutes
-		[]
+		time = Time.current
+		Platform::TYPES.select { |type|
+			curr_interval = Platform::get_time_interval(time)
+			curr_failed_count = Platform.get_platform_failed_count(type, time)
+
+			prev_interval = Platform::get_time_interval(time - Platform::INTERVAL_SIZE)
+			prev_failed_count = Platform.get_platform_failed_count(type, time - Platform::INTERVAL_SIZE)
+
+			(curr_failed_count + prev_failed_count) > Platform::FAIL_THRESHOLD
+		}
 	end
 
-  def perform
+	def perform
 		logger.info "MASTER_MONITORING_JOB_STARTED"
 
 		down_platforms = get_down_platforms
@@ -34,10 +42,10 @@ class MasterMonitoringJob
 		logger.info "MASTER_MONITORING_JOB_ENDED"
 	rescue => e
 		logger.error "MASTER_MONITOR_JOB_FAILED: #{e.class} - #{e.message} - #{e.backtrace}"
-		# Add stat
-		# Not raising error as not confident how sidekiq handles it
+		# TODO: Add stat
+		# TODO: Not raising error as not confident how sidekiq handles it
 	ensure
 		MasterMonitoringJob.perform_in(1.minutes)
-		# Use scheduler
-  end
+		# TODO: Use scheduler
+	end
 end
